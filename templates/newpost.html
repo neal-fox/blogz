@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Add a Blog Entry</h1>
+<form action="/newpost" method='post'>
+    <label>
+        Title for your new blog post:
+        <input type="text" name='title' />
+    </label>
+    {% with title_errors = get_flashed_messages(category_filter=["title-error"]) %}
+    {% if title_errors %}
+        {% for msg in title_errors %}
+            <p class="error">{{msg}}</p>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <label>
+        Your new blog post:
+        <textarea name='body'></textarea>
+    </label>
+    {% with post_errors = get_flashed_messages(category_filter=["post-error"]) %}
+    {% if post_errors %}
+        {% for msg in post_errors %}
+            <p class="error">{{msg}}</p>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <input type="submit" value='Add Post' />
+</form>
+{% endblock %}

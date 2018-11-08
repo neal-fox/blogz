@@ -3,21 +3,21 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://get-it-done:remember@localhost:8889/get-it-done'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://build-a-blog:password@localhost:8889/build-a-blog'
 app.config['SQLALCHEMY_ECHO'] =  True
 db = SQLAlchemy(app)
 app.secret_key = 'abcdefg'
 
-class Task(db.Model): 
+class Blog(db.Model): 
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(120))
-    completed = db.Column(db.Boolean)
+    title = db.Column(db.String(120))
+    body = db.Column(db.String(120))
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    def __init__(self, name, owner):
-        self.name = name
-        self.completed = False
+    def __init__(self, title, body, owner):
+        self.title = title
+        self.body = body
         self.owner = owner
 
 tasks = []
@@ -27,7 +27,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True)
     password = db.Column(db.String(120))
-    tasks = db.relationship('Task', backref='owner')
+    blogs = db.relationship('Blog', backref='owner')
 
     def __init__(self, email, password):
         self.email = email
@@ -36,7 +36,6 @@ class User(db.Model):
 @app.before_request
 def require_login():
     allowed_routes = ['login', 'register']
-    print(session)
     if request.endpoint not in allowed_routes and 'email' not in session:
         return redirect('/login')
 
@@ -49,7 +48,7 @@ def login():
         if user and user.password == password:
             session['email'] = email
             flash("Logged in")
-            return redirect('/')
+            return redirect('/blog')
         else:
             flash("User password incorrect or user does not exist", 'error')
 
@@ -70,7 +69,7 @@ def register():
             db.session.add(new_user)
             db.session.commit()
             session['email'] = email
-            return redirect('/')
+            return redirect('/blog')
         else:
             #TODO - better response message
             return "<h1>Duplicate user</h1>"
@@ -80,33 +79,45 @@ def register():
 @app.route('/logout')
 def logout():
     del session['email']
-    return redirect('/')
+    return redirect('/blog')
 
-@app.route('/', methods=['POST', 'GET'])
+@app.route('/blog', methods=['POST', 'GET'])
 def index():
+    blog_id = request.args.get("id")
+    owner = User.query.filter_by(email=session['email']).first()
+
+    if blog_id:
+        blog = Blog.query.filter_by(id=blog_id).first()
+        return render_template('blog.html',title=blog.title,
+         blog=blog)
+
+    blogs = Blog.query.filter_by(owner=owner).all()
+    return render_template('blogs.html',title="Build a Blog",
+         blogs=blogs)
+
+@app.route('/newpost', methods=['GET', 'POST'])
+def newpost():
     owner = User.query.filter_by(email=session['email']).first()
 
     if request.method == 'POST':
-        task_name = request.form['task']
-        new_task = Task(task_name, owner)
-        db.session.add(new_task)
+        blog_name = request.form['title']
+        blog_body = request.form['body']
+        error = False
+        if not blog_name:
+            flash("Please enter a blog title", 'title-error')
+            error = True
+        if not blog_body:
+            flash("Please enter a blog post", 'post-error')
+            error = True
+        if error:
+            return redirect('/newpost')
+
+        new_blog = Blog(blog_name, blog_body, owner)
+        db.session.add(new_blog)
         db.session.commit()
+        return redirect('/blog?id=' + str(new_blog.id))
 
-    tasks = Task.query.filter_by(completed=False,owner=owner).all()
-    completed_tasks = Task.query.filter_by(completed=True,owner=owner).all()
-
-    return render_template('todos.html',title="Get It Done!",
-         tasks=tasks, completed_tasks=completed_tasks)
-
-@app.route('/delete-task', methods=['POST'])
-def delete_task():
-    task_id = int(request.form['task-id'])
-    task = Task.query.get(task_id)
-    task.completed = True
-    db.session.add(task)
-    db.session.commit()
-
-    return redirect('/')
+    return render_template('newpost.html',title="Add a Blog Post")
 
 if __name__ == '__main__':
     app.run()

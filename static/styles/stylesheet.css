@@ -1,0 +1,12 @@
+.nav {
+    display: flex;
+    justify-content: start;
+    background-color: aquamarine;
+    border: black solid 1px;
+}
+.nav div {
+    margin-right: 15px;
+}
+.error {
+    color: red;
+}
