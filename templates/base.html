@@ -7,14 +7,26 @@
 <body>
     <div class="nav">
         <div>
-            <a href='/blog'>Main Blog Page</a>
+            <a href='/'>Home</a>
+        </div>
+        <div>
+            <a href='/blog'>All Posts</a>
         </div>
         <div>
             <a href='/newpost'>Add a Blog Entry</a>
         </div>
-        <div>
-            <a href='/logout'>Logout</a>
-        </div>
+        {% if session['username'] %}
+            <div>
+                <a href="/blog?user_posts=1">My Posts</a>
+            </div>
+            <div>
+                <a href='/logout'>Logout</a>
+            </div>
+        {% else %}
+            <div>
+                <a href='/login'>Login</a>
+            </div>
+        {% endif %}
     </div>
     
 

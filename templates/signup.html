@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Register to Build a Blog!</h1>
+<form action="/signup" method="post">
+    <table>
+        <tr>
+            <td><label for="username">Username</label></td>
+            <td>
+                <input name="username" type="username" value="{{ username }}">
+            </td>
+        </tr>
+        {% with user_errors = get_flashed_messages(category_filter=["user-error"]) %}
+        {% if user_errors %}
+            {% for msg in user_errors %}
+                <tr><td class="error" colspan="2">* {{msg}}</td></tr>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+        <tr>
+            <td><label for="password">Password</label></td>
+            <td>
+                <input name="password" type="password">
+            </td>
+        </tr>
+        <tr>
+            <td><label for="verify">Verify Password</label></td>
+            <td>
+                <input name="verify" type="password">
+            </td>
+        </tr>
+        {% with pw_errors = get_flashed_messages(category_filter=["pw-error"]) %}
+        {% if pw_errors %}
+            {% for msg in pw_errors %}
+                <tr><td class="error" colspan="2">* {{msg}}</td></tr>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+    </table>
+    <input type="submit" value="Signup">
+</form>
+{% endblock %}

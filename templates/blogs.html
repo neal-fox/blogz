@@ -8,8 +8,9 @@
     {% else %}
         {% for blog in blogs | reverse %}
         <div class="blog-post">
-            <a href="/blog?id={{blog.id}}"><h2>{{blog.title}}</h2></a>
+            <a href="/blog?blog_id={{blog.id}}"><h2>{{blog.title}}</h2></a>
             <p>{{blog.body}}</p>
+            <p class="author">written by <a href="/blog?user_id={{blog.owner_id}}">{{blog.owner.username}}</a></p>
             <hr />
         </div>
         {% endfor %}

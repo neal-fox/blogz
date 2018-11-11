@@ -7,6 +7,9 @@
 .nav div {
     margin-right: 15px;
 }
+.author {
+    font-style: italic;
+}
 .error {
     color: red;
 }

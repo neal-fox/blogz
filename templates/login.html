@@ -2,20 +2,34 @@
 
 {% block content %}
 <h1>Log in to Build a Blog!</h1>
-<p>If you don't have an account, you may <a href="/register">register</a> for one</p>
+<p>If you don't have an account, you may <a href="/signup">register</a> for one</p>
 <form action="/login" method="post">
     <table>
         <tr>
-            <td><label for="email">Email</label></td>
+            <td><label for="username">Username</label></td>
             <td>
-                <input name="email" type="email" value="{{ email }}">
+                <input name="username" type="username" value="{{ username }}">
             </td>
+            {% with user_errors = get_flashed_messages(category_filter=["user-error"]) %}
+            {% if user_errors %}
+                {% for msg in user_errors %}
+                    <td class="error">* {{msg}}</td>
+                {% endfor %}
+            {% endif %}
+            {% endwith %}
         </tr>
         <tr>
             <td><label for="password">Password</label></td>
             <td>
                 <input name="password" type="password">
             </td>
+            {% with pw_errors = get_flashed_messages(category_filter=["pw-error"]) %}
+            {% if pw_errors %}
+                {% for msg in pw_errors %}
+                    <td class="error">* {{msg}}</td>
+                {% endfor %}
+            {% endif %}
+            {% endwith %}
         </tr>
     </table>
     <input type="submit" value="Login">
